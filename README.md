@@ -25,25 +25,6 @@ A web application that extracts and classifies information from resumes such as 
 
 ---
 
-## Project Structure
-
-Resume-Parsing-app/
-│
-├── backend/ # Flask backend code
-│ ├── app.py # Main Flask application
-│ ├── model/ # ML models and parsing scripts
-│ └── requirements.txt # Backend dependencies
-│
-├── resume-praser-app/ # React frontend application
-│ ├── public/
-│ ├── src/
-│ ├── package.json
-│ └── README.md
-│
-└── README.md # This file
-
-
----
 
 ## Installation and Setup
 
