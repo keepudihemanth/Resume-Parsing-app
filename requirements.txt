@@ -1,0 +1,13 @@
+Flask
+flask-cors
+pdfminer.six
+pandas
+spacy
+tensorflow
+scikit-learn
+matplotlib
+joblib
+fuzzywuzzy
+python-Levenshtein
+PyPDF2
+numpy
