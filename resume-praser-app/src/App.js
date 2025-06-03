@@ -5,9 +5,11 @@ function App() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [activePage, setActivePage] = useState('home');
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+    setResult(null); // Clear previous result on new file selection
   };
 
   const handleUpload = async () => {
@@ -33,18 +35,28 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <header className="navbar">
-        <div className="nav-logo">Resume Classifier</div>
-        <div className="nav-links">
-          <a href="#">Home</a>
-          <a href="#">About</a>
-        </div>
-      </header>
+  <div className="app-container">
+    <header className="navbar">
+      <div className="nav-logo">Resume Parser</div>
+      <div className="nav-links">
+        <button
+          className={`nav-button ${activePage === 'home' ? 'active' : ''}`}
+          onClick={() => setActivePage('home')}
+        >
+          Home
+        </button>
+        <button
+          className={`nav-button ${activePage === 'about' ? 'active' : ''}`}
+          onClick={() => setActivePage('about')}
+        >
+          About
+        </button>
+      </div>
+    </header>
 
+    {activePage === 'home' && (
       <main className="container">
         <h1>Upload a Resume (PDF)</h1>
-
         <div className="upload-box">
           <input type="file" accept=".pdf" onChange={handleFileChange} />
           <button onClick={handleUpload} disabled={loading || !file}>
@@ -72,12 +84,54 @@ function App() {
           </div>
         )}
       </main>
+    )}
 
-      <footer className="footer">
-        &copy; {new Date().getFullYear()} Resume Classifier App | All rights reserved
-      </footer>
-    </div>
-  );
+    {activePage === 'about' && (
+      <div className="about-page">
+        <h1>About Resume Parser</h1>
+        <p>
+          <strong>Resume Parser</strong> is a smart web application that leverages machine learning and natural language processing (NLP) to automate the analysis of resumes. It is built to assist HR teams, recruiters, and job platforms in interpreting and categorizing resumes efficiently.
+        </p>
+
+        <h2>🚀 Key Features</h2>
+        <ul>
+          <li>PDF Upload & Parsing</li>
+          <li>Candidate Information Extraction (Name, Email, Phone, Skills)</li>
+          <li>Automatic Role Prediction using a trained ML model</li>
+          <li>User-Friendly Interface with real-time results</li>
+        </ul>
+
+        <h2>🧠 How It Works</h2>
+        <ol>
+          <li>Upload a PDF resume via the Home page</li>
+          <li>The backend extracts and processes the content</li>
+          <li>NLP and ML models classify and extract key information</li>
+          <li>Predicted role and extracted details are displayed</li>
+        </ol>
+
+        <h2>🛠️ Technologies Used</h2>
+        <ul>
+          <li><strong>Frontend:</strong> React (JavaScript, JSX)</li>
+          <li><strong>Backend:</strong> Flask (Python)</li>
+          <li><strong>PDF Parsing:</strong> PyMuPDF, pdfminer</li>
+          <li><strong>ML/NLP:</strong> Scikit-learn, SpaCy/NLTK</li>
+        </ul>
+
+        <h2>📌 Use Cases</h2>
+        <ul>
+          <li>Resume shortlisting in recruitment systems</li>
+          <li>Job portal resume classification</li>
+          <li>Automated HR workflows</li>
+          <li>Educational demos for ML/NLP applications</li>
+        </ul>
+      </div>
+    )}
+
+    <footer className="footer">
+      &copy; {new Date().getFullYear()} Resume Parser App | All rights reserved
+    </footer>
+  </div>
+);
 }
 
 export default App;
