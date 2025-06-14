@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
@@ -6,10 +6,25 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activePage, setActivePage] = useState('home');
+  const [backendStatus, setBackendStatus] = useState('Checking...');
+
+ 
+  useEffect(() => {
+    fetch('http://localhost:5000/health')
+      .then(res => res.json())
+      .then(data => setBackendStatus('✅ Running'))
+      .catch(() => setBackendStatus('❌ Offline'));
+  }, []);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setResult(null); // Clear previous result on new file selection
+    const selected = e.target.files[0];
+    if (selected && selected.type !== 'application/pdf') {
+      setResult({ error: 'Only PDF files are supported.' });
+      setFile(null);
+    } else {
+      setFile(selected);
+      setResult(null);
+    }
   };
 
   const handleUpload = async () => {
@@ -35,103 +50,95 @@ function App() {
   };
 
   return (
-  <div className="app-container">
-    <header className="navbar">
-      <div className="nav-logo">Resume Parser</div>
-      <div className="nav-links">
-        <button
-          className={`nav-button ${activePage === 'home' ? 'active' : ''}`}
-          onClick={() => setActivePage('home')}
-        >
-          Home
-        </button>
-        <button
-          className={`nav-button ${activePage === 'about' ? 'active' : ''}`}
-          onClick={() => setActivePage('about')}
-        >
-          About
-        </button>
-      </div>
-    </header>
-
-    {activePage === 'home' && (
-      <main className="container">
-        <h1>Upload a Resume (PDF)</h1>
-        <div className="upload-box">
-          <input type="file" accept=".pdf" onChange={handleFileChange} />
-          <button onClick={handleUpload} disabled={loading || !file}>
-            {loading ? 'Processing...' : 'Upload'}
+    <div className="app-container">
+      <header className="navbar">
+        <div className="nav-logo">Resume Parser</div>
+        <div className="nav-links">
+          <button
+            className={`nav-button ${activePage === 'home' ? 'active' : ''}`}
+            onClick={() => setActivePage('home')}
+          >
+            Home
           </button>
-          {file && <div className="filename">{file.name}</div>}
+          <button
+            className={`nav-button ${activePage === 'about' ? 'active' : ''}`}
+            onClick={() => setActivePage('about')}
+          >
+            About
+          </button>
         </div>
+        <div className="status">Backend: {backendStatus}</div>
+      </header>
 
-        {loading && <div className="loader">⏳ Processing resume...</div>}
-
-        {result && (
-          <div className="result-box">
-            {result.error ? (
-              <p className="error">{result.error}</p>
-            ) : (
-              <>
-                <h2 className="prediction">Prediction: {result.prediction}</h2>
-                <div className="result-field"><strong>Name:</strong> {result.name}</div>
-                <div className="result-field"><strong>Email:</strong> {result.email}</div>
-                <div className="result-field"><strong>Phone:</strong> {result.phone}</div>
-                <div className="result-field"><strong>Skills:</strong> {result.skills.join(', ')}</div>
-                <div className="result-field"><strong>Predicted Role:</strong> {result.predicted_role}</div>
-              </>
-            )}
+      {activePage === 'home' && (
+        <main className="container">
+          <h1>Upload a Resume (PDF)</h1>
+          <div className="upload-box">
+            <input type="file" accept=".pdf" onChange={handleFileChange} />
+            <button onClick={handleUpload} disabled={loading || !file}>
+              {loading ? 'Processing...' : 'Upload'}
+            </button>
+            {file && <div className="filename">{file.name}</div>}
           </div>
-        )}
-      </main>
-    )}
 
-    {activePage === 'about' && (
-      <div className="about-page">
-        <h1>About Resume Parser</h1>
-        <p>
-          <strong>Resume Parser</strong> is a smart web application that leverages machine learning and natural language processing (NLP) to automate the analysis of resumes. It is built to assist HR teams, recruiters, and job platforms in interpreting and categorizing resumes efficiently.
-        </p>
+          {loading && <div className="loader">⏳ Processing resume...</div>}
 
-        <h2>🚀 Key Features</h2>
-        <ul>
-          <li>PDF Upload & Parsing</li>
-          <li>Candidate Information Extraction (Name, Email, Phone, Skills)</li>
-          <li>Automatic Role Prediction using a trained ML model</li>
-          <li>User-Friendly Interface with real-time results</li>
-        </ul>
+          {result && (
+            <div className="result-box">
+              {result.error ? (
+                <p className="error">{result.error}</p>
+              ) : (
+                <>
+                  <h2 className="prediction">Prediction: {result.prediction}</h2>
+                  <div className="result-field"><strong>Confidence:</strong> {(result.confidence * 100).toFixed(2)}%</div>
+                  <div className="result-field"><strong>Name:</strong> {result.name}</div>
+                  <div className="result-field"><strong>Email:</strong> {result.email}</div>
+                  <div className="result-field"><strong>Phone:</strong> {result.phone}</div>
+                  <div className="result-field"><strong>Skills:</strong> {result.skills?.join(', ') || 'None found'}</div>
+                  <div className="result-field"><strong>Predicted Role:</strong> {result.predicted_role}</div>
+                </>
+              )}
+            </div>
+          )}
+        </main>
+      )}
 
-        <h2>🧠 How It Works</h2>
-        <ol>
-          <li>Upload a PDF resume via the Home page</li>
-          <li>The backend extracts and processes the content</li>
-          <li>NLP and ML models classify and extract key information</li>
-          <li>Predicted role and extracted details are displayed</li>
-        </ol>
-
-        <h2>🛠️ Technologies Used</h2>
-        <ul>
-          <li><strong>Frontend:</strong> React (JavaScript, JSX)</li>
-          <li><strong>Backend:</strong> Flask (Python)</li>
-          <li><strong>PDF Parsing:</strong> PyMuPDF, pdfminer</li>
-          <li><strong>ML/NLP:</strong> Scikit-learn, SpaCy/NLTK</li>
-        </ul>
-
-        <h2>📌 Use Cases</h2>
-        <ul>
-          <li>Resume shortlisting in recruitment systems</li>
-          <li>Job portal resume classification</li>
-          <li>Automated HR workflows</li>
-          <li>Educational demos for ML/NLP applications</li>
-        </ul>
-      </div>
-    )}
-
-    <footer className="footer">
-      &copy; {new Date().getFullYear()} Resume Parser App | All rights reserved
-    </footer>
+      {activePage === 'about' && (
+  <div className="about-container fade-in">
+    <h1 className="slide-up">About Resume Parser</h1>
+    <p className="fade-in delay-1">
+      <strong>Resume Parser</strong> is a smart web application that leverages 
+      <strong> Machine Learning</strong> and 
+      <strong> Natural Language Processing (NLP)</strong> to automate resume analysis.
+    </p>
+    <h2 className="slide-up delay-2"> Key Features</h2>
+    <ul className="fade-in delay-2">
+      <li>PDF Upload & Parsing</li>
+      <li>Candidate Info Extraction (Name, Email, Phone, Skills)</li>
+      <li>Automatic Role Prediction using ML</li>
+      <li>Real-time confidence scoring</li>
+    </ul>
+    <h2 className="slide-up delay-3"> How It Works</h2>
+    <ol className="fade-in delay-3">
+      <li>Upload a resume via the home page</li>
+      <li>Backend extracts and classifies the content</li>
+      <li>NLP + ML predict the applicant’s role</li>
+      <li>Information + confidence displayed instantly</li>
+    </ol>
+    <h2 className="slide-up delay-4"> Tech Stack</h2>
+    <ul className="fade-in delay-4">
+      <li><strong>Frontend:</strong> React</li>
+      <li><strong>Backend:</strong> Flask</li>
+      <li><strong>Parsing:</strong> PDFMiner</li>
+      <li><strong>ML:</strong> TensorFlow, SpaCy</li>
+    </ul>
   </div>
-);
+)}
+      <footer className="footer">
+        &copy; {new Date().getFullYear()} Resume Parser App | All rights reserved
+      </footer>
+    </div>
+  );
 }
 
 export default App;
