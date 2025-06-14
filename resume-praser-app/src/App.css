@@ -132,26 +132,104 @@ button:disabled {
 }
 
 .about-container {
-  min-height: 100vh;           /* full viewport height */
-  padding: 3rem 4rem;          /* generous padding on all sides */
-  background-color: #f9fbfd;   /* subtle background */
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  background-color: #ffffff;
   color: #2c3e50;
-  line-height: 1.6;
+  line-height: 1.7;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 1s ease-in-out;
 }
 
-.about-container h1,
-.about-container h2 {
+.about-container h1 {
+  font-size: 2.5rem;
   color: #0077cc;
-  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  animation: slideUp 0.8s ease-out;
 }
 
-.about-container ul {
-  padding-left: 1.5rem;
+.about-container p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  text-align: justify;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
+}
+
+.about-container h2 {
+  font-size: 1.75rem;
+  color: #0077cc;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: slideUp 0.8s ease forwards;
+}
+
+.about-container ul,
+.about-container ol {
+  padding-left: 1.8rem;
+  font-size: 1.05rem;
+  margin-bottom: 2rem;
+  opacity: 0;
+  animation: fadeIn 1s ease forwards;
 }
 
 .about-container li {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.75rem;
 }
+
+.about-container strong {
+  color: #34495e;
+}
+
+.about-container code {
+  background-color: #eef3f7;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #0077cc;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Animation delay utility classes */
+.fade-in {
+  animation: fadeIn 1s ease forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.8s ease-out forwards;
+}
+
+.delay-1 {
+  animation-delay: 0.3s;
+}
+
+.delay-2 {
+  animation-delay: 0.5s;
+}
+
+.delay-3 {
+  animation-delay: 0.7s;
+}
+
+.delay-4 {
+  animation-delay: 0.9s;
+}
+
+
 
 .footer {
   padding: 20px;
