@@ -37,5 +37,6 @@ A web application that extracts and classifies information from resumes such as 
    cd Resume-Parsing-app/backend
 
 
+Here is how landing page looks like 
 
 ![image](https://github.com/user-attachments/assets/98505a3b-9e17-498f-8386-805061ad18fd)
