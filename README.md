@@ -35,3 +35,7 @@ A web application that extracts and classifies information from resumes such as 
    ```bash
    git clone https://github.com/keepudihemanth/Resume-Parsing-app.git
    cd Resume-Parsing-app/backend
+
+
+
+![image](https://github.com/user-attachments/assets/98505a3b-9e17-498f-8386-805061ad18fd)
