@@ -10,7 +10,7 @@ import logging
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 
-# Setup
+# Setup fLask
 app = Flask(__name__)
 CORS(app)
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB limit
@@ -37,16 +37,26 @@ ROLE_SKILL_MAP = {
     "Tester / QA Engineer": {"selenium", "junit", "cypress", "testng", "appium", "postman"}
 }
 
-# Utils
+
 def clean_text(text):
     return re.sub(r'\s+', ' ', text).strip()
 
 def extract_name(text):
-    doc = nlp(text)
-    for ent in doc.ents:
-        if ent.label_ == "PERSON":
-            logging.info(f"Detected name entity: {ent.text}")
-            return ent.text
+    name_regex = re.search(r"(?:Name|Candidate)[:\-\s]*([A-Z][a-z]+(?:\s[A-Z][a-z]+)?)", text[:300], re.IGNORECASE)
+    if name_regex:
+        name = name_regex.group(1).strip()
+        if name.lower() not in ["email", "contact", "phone"]:
+            logging.info(f"[Regex] Detected name: {name}")
+            return name
+
+    doc = nlp(text[:500])
+    candidates = [ent.text for ent in doc.ents if ent.label_ == "PERSON"]
+    
+    for name in candidates:
+        if name.lower() not in ["email", "contact", "phone", "resume"]:
+            logging.info(f"[NER] Detected name entity: {name}")
+            return name
+
     return "N/A"
 
 def extract_email(text):
@@ -59,27 +69,42 @@ def extract_phone(text):
 
 def extract_skills(text):
     doc = nlp(text.lower())
-    lemmatized = {token.lemma_ for token in doc if not token.is_stop and token.is_alpha}
-    matched_skills = list(SKILL_SET.intersection(lemmatized))
-    logging.info(f"Extracted skills: {matched_skills}")
-    return matched_skills
+
+    candidates = set()
+    for chunk in doc.noun_chunks:
+        phrase = chunk.text.strip().lower()
+        if phrase in SKILL_SET:
+            candidates.add(phrase)
+
+    for token in doc:
+        if token.is_alpha and not token.is_stop:
+            lemma = token.lemma_.lower()
+            if lemma in SKILL_SET:
+                candidates.add(lemma)
+
+    logging.info(f"[SKILLS] Extracted: {sorted(candidates)}")
+    return sorted(candidates)
+
 
 def predict_role(skills):
     role_scores = {}
-    for role, required_skills in ROLE_SKILL_MAP.items():
-        score = len(set(skills) & required_skills)
-        if score > 0:
-            role_scores[role] = score
-    best_role = max(role_scores, key=role_scores.get) if role_scores else "N/A"
-    logging.info(f"Predicted Role: {best_role}")
-    return best_role
 
-# Health check route
+    for role, required_skills in ROLE_SKILL_MAP.items():
+        match_count = len(set(skills) & required_skills)
+        if match_count > 0:
+            normalized_score = match_count / len(required_skills)
+            role_scores[role] = normalized_score
+
+    if role_scores:
+        best_role = max(role_scores, key=role_scores.get)
+        logging.info(f"[ROLE] Predicted: {best_role} (score: {role_scores[best_role]:.2f})")
+        return best_role
+    else:
+        return "N/A"
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "running"}), 200
-
-# Upload Route
 @app.route('/upload', methods=['POST'])
 def upload_resume():
     file = request.files.get("file")
